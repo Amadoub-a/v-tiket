@@ -17,4 +17,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//Route::namespace('Parametre')->middleware('auth')->name('parametre.')->prefix('parametre')->group(function () {
+Route::namespace('Parametre')->name('parametre.')->prefix('parametre')->group(function () {
+    Route::resource('countries', 'CountryController');
+    //Route::get('countries/store', 'CountryController@store');
+});
+
 require __DIR__.'/auth.php';

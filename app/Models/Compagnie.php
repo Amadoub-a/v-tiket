@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Compagnie extends Model
+class Compagnie extends BaseModel
 {
     use HasFactory;
 
@@ -15,29 +15,17 @@ class Compagnie extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'raison_sociale',
-        'contact',
-        'email',
-        'adresse',
-        'contact_fixe',
-        'country_id',
-        'annee_fondation',
-        'site_internet',
-        'created_by',
-        'updated_by',
-        'deleted_by',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function getFillable()
     {
         return [
-            'deleted_at' => 'datetime',
+            'raison_sociale',
+            'contact',
+            'email',
+            'adresse',
+            'contact_fixe',
+            'country_id',
+            'annee_fondation',
+            'site_internet',
         ];
     }
 

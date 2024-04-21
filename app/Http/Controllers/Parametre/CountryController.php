@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Parametre;
 
 use Exception;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Country;
+use Intervention\Image\Laravel\Facades\Image;
 
 class CountryController extends Controller
 {
@@ -28,7 +29,7 @@ class CountryController extends Controller
         if ($request->isMethod('post') && $request->input('libelle_country')) {
 
                 $data = $request->all(); 
-                
+               
             try {
 
                 $request->validate([
@@ -43,8 +44,22 @@ class CountryController extends Controller
                 $country = new Country;
                 $country->code = $data['code'];
                 $country->libelle_country = $data['libelle_country'];
-                //TODO enregistrement d'image du drapeau
-                $country->flags = $data['flags'];
+                
+                //File upload if existe
+                if($request->hasFile('flags')){
+                  
+                    $flags = $request->file('flags');
+                    $filename = $data['libelle_country'].rand(100000, 999999).'.jpg';
+                    $image = Image::read($flags);
+
+                    // Resize image
+                    $image->resize(250, 250, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save(storage_path('app/public/uploads-flags/' . $filename));
+
+                    //Enregistrement du lien dans la BD
+                    $country->flags = "storage/uploads-flags/$filename";
+                }
 
                 $country->save();
                 $jsonData["data"] = json_decode($country);
@@ -70,6 +85,7 @@ class CountryController extends Controller
         
         if($country){
             $data = $request->all(); 
+
             try {
 
                 $request->validate([
@@ -78,8 +94,24 @@ class CountryController extends Controller
 
                 $country->code = $data['code'];
                 $country->libelle_country = $data['libelle_country'];
-                //TODO enregistrement d'image du drapeau
-                
+
+                //File upload if existe
+                if($request->hasFile('flags')){
+                  
+                    $flags = $request->file('flags');
+                    $filename = $data['libelle_country'].rand(100000, 999999).'.jpg';
+                    $image = Image::read($flags);
+
+                    // Resize image
+                    $image->resize(250, 250, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save(storage_path('app/public/uploads-flags/' . $filename));
+
+                    //Enregistrement du lien dans la BD
+                    $country->flags = "storage/uploads-flags/$filename";
+                }
+
+                $country->save();
                 $jsonData["data"] = json_decode($country);
                 return response()->json($jsonData);
 
@@ -103,6 +135,8 @@ class CountryController extends Controller
             if($country){
                 try {
                
+                unlink($country->flags);
+
                 $country->delete();
                 $jsonData["data"] = json_decode($country);
                 return response()->json($jsonData);

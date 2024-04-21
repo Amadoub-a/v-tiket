@@ -1,7 +1,12 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Parametre\GenreController;
+use App\Http\Controllers\Parametre\VilleController;
+use App\Http\Controllers\Parametre\MarqueController;
+use App\Http\Controllers\Parametre\ModeleController;
+use App\Http\Controllers\Parametre\CountryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,10 +22,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//Route::namespace('Parametre')->middleware('auth')->name('parametre.')->prefix('parametre')->group(function () {
-Route::namespace('Parametre')->name('parametre.')->prefix('parametre')->group(function () {
-    Route::resource('countries', 'CountryController');
-    //Route::get('countries/store', 'CountryController@store');
+Route::name('parametre.')->prefix('parametre')->group(function (){
+    //Route ressources
+    Route::resource('countries', CountryController::class);
+    Route::resource('genres', GenreController::class);
+    Route::resource('marques', MarqueController::class);
+    Route::resource('modeles', ModeleController::class);
+    Route::resource('villes', VilleController::class);
 });
 
 require __DIR__.'/auth.php';

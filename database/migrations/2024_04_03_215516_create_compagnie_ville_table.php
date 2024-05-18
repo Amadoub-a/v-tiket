@@ -17,6 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Compagnie::class);
             $table->foreignIdFor(Ville::class);
+
+            $table->foreign('compagnie_id')->references('id')->on('compagnies')->onDelete('cascade');
+            $table->foreign('ville_id')->references('id')->on('villes')->onDelete('cascade');
             $table->timestamps();
         });
     }

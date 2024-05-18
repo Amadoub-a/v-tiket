@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\BaseModele;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Chauffeur extends Model
+class Chauffeur extends BaseModele
 {
     use HasFactory;
 
@@ -14,26 +15,22 @@ class Chauffeur extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'contact',
-        'email',
-        'adresse',
-        'compagnie_id',
-        'created_by',
-        'updated_by',
-        'deleted_by',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
+    public function getFillable() {
+       
         return [
-            'deleted_at' => 'datetime',
+            'name',
+            'contact',
+            'email',
+            'adresse',
+            'compagnie_id',
         ];
+    }
+
+     /**
+     * The compagnie that belong to the chauffeur.
+     */
+    public function compagnie(): BelongsTo
+    {
+        return $this->belongsTo(Compagnie::class);
     }
 }

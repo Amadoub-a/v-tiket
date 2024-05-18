@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 abstract class BaseModele extends Model
 {
+    use SoftDeletes;
     //commun fields in the base class
     protected $fillable = [
                             'created_by', 

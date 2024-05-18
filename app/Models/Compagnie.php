@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModele;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Compagnie extends BaseModel
+class Compagnie extends BaseModele
 {
     use HasFactory;
 
@@ -35,5 +36,13 @@ class Compagnie extends BaseModel
     public function villes(): BelongsToMany
     {
         return $this->belongsToMany(Ville::class);
+    }
+
+     /**
+     * Get the chauffeurs for the compagnie.
+     */
+    public function chauffeurs(): HasMany
+    {
+        return $this->hasMany(Chauffeur::class);
     }
 }

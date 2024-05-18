@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Genre;
+use App\Models\Marque;
+use App\Models\Modele;
+use App\Models\BaseModele;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Vehicule extends Model
+class Vehicule extends BaseModele
 {
     use HasFactory;
 
@@ -23,20 +28,29 @@ class Vehicule extends Model
         'genre_id',
         'modele_id',
         'compagnie_id',
-        'created_by',
-        'updated_by',
-        'deleted_by',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * The genre that belong to the vehicule.
      */
-    protected function casts(): array
+    public function genre(): BelongsTo
     {
-        return [
-            'deleted_at' => 'datetime',
-        ];
+        return $this->belongsTo(Genre::class);
+    }
+
+    /**
+     * The marque that belong to the vehicule.
+     */
+    public function marque(): BelongsTo
+    {
+        return $this->belongsTo(Marque::class);
+    }
+
+    /**
+     * The modele that belong to the vehicule.
+     */
+    public function modele(): BelongsTo
+    {
+        return $this->belongsTo(Modele::class);
     }
 }

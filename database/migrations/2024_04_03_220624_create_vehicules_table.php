@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('vehicules', function (Blueprint $table) {
             $table->id();
-            $table->string('immatriculation')->unique();
-            $table->string('numero_chassis')->unique();
+            $table->string('immatriculation')->index();
+            $table->string('numero_chassis');
             $table->integer('nombre_place');
-            $table->integer('annee_fabrication');
-            $table->foreignId('marque_id')->index();
-            $table->foreignId('genre_id')->index();
-            $table->foreignId('modele_id')->index();
-            $table->foreignId('compagnie_id')->index();
+            $table->foreignId('marque_id');
+            $table->foreignId('genre_id');
+            $table->foreignId('modele_id');
+            $table->foreignId('compagnie_id');
+            $table->integer('annee_fabrication')->nullable();
 
-            $table->foreignId('created_by')->nullable()->index();
-            $table->foreignId('updated_by')->nullable()->index();
-            $table->foreignId('deleted_by')->nullable()->index();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
+            $table->foreignId('deleted_by')->nullable();
             $table->timestamp('deleted_at')->nullable();
             
             $table->timestamps();

@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Modele extends Model
 {
@@ -17,4 +18,12 @@ class Modele extends Model
     protected $fillable = [
         'libelle_modele',
     ];
+
+    /**
+     * Get the vehicules for the modele.
+     */
+    public function vehicules(): HasMany
+    {
+        return $this->hasMany(Vehicule::class);
+    }
 }

@@ -24,6 +24,12 @@ return new class extends Migration
             $table->foreignId('compagnie_id')->nullable()->index();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
+            $table->foreignId('deleted_by')->nullable();
+            $table->timestamp('deleted_at')->nullable();
+            
             $table->rememberToken();
             $table->timestamps();
         });

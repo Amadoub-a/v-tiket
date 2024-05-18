@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('compagnies', function (Blueprint $table) {
             $table->id();
-            $table->string('raison_sociale')->unique();
+            $table->string('raison_sociale')->unique()->index();
             $table->string('contact')->unique();
             $table->string('email')->unique();
             $table->string('adresse');
@@ -22,9 +22,9 @@ return new class extends Migration
             $table->integer('annee_fondation')->nullable();
             $table->string('site_internet')->nullable();
 
-            $table->foreignId('created_by')->nullable()->index();
-            $table->foreignId('updated_by')->nullable()->index();
-            $table->foreignId('deleted_by')->nullable()->index();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
+            $table->foreignId('deleted_by')->nullable();
             $table->timestamp('deleted_at')->nullable();
             
             $table->timestamps();

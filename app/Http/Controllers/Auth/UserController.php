@@ -1,29 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\Parametre;
+namespace App\Http\Controllers\Auth;
 
 use Exception;
 use App\Models\User;
-use App\Models\Country;
-use App\Models\Compagnie;
 use App\Mail\SimpleMessage;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-class CompagnieController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $coutries = Country::all();
+        $roles = ['super-admin','admin','admin-compagnie','gerand','caissier'];
         
-        return response()->json($coutries);
+        return response()->json($roles);
     }
 
     /**
@@ -34,64 +33,46 @@ class CompagnieController extends Controller
         
         $jsonData = ["code" => 1, "msg" => "Enregistrement effectué avec succès."];
         
-        if ($request->isMethod('post') && $request->input('raison_sociale')) {
+        if ($request->isMethod('post') && $request->input('name')) {
 
                 $data = $request->all(); 
                
             try {
                 
                 $request->validate([
-                    'raison_sociale' => 'required',
+                    'name' => 'required',
                     'contact' => 'required',
                     'email' => 'required',
-                    'adresse' => 'required',
-                    'country_id' => 'required',
+                    'role' => 'required',
                 ]);
 
                 //Debut de transaction
                 DB::beginTransaction();
 
-                $Compagnie = Compagnie::where([['raison_sociale', $data['raison_sociale']],['country_id', $data['country_id']]])->exists();
-                if($Compagnie){
+                $User = User::where(['email',$data['email']])->exists();
+                if($User){
                     return response()->json(["code" => 0, "msg" => "Cet enregistrement existe déjà dans la base", "data" => NULL]);
                 }
 
-                $compagnie = new Compagnie;
-                $compagnie->raison_sociale = $data['raison_sociale'];
-                $compagnie->contact = $data['contact'];
-                $compagnie->email = $data['email'];
-                $compagnie->adresse = $data['adresse'];
-                $compagnie->country_id = $data['country_id'];
+                $user = new User;
+                $user->name =  $data['name'];
+                $user->contact = $data['contact'];
+                $user->email = $data['email'];
+                $user->role = $data['role'];
+                $user->confirmation_token = str_replace('/', '', bcrypt(Str::random(16)));
 
-                $compagnie->contact_fixe = isset($data['contact_fixe']) ? $data['contact_fixe'] : null ;
-                $compagnie->annee_fondation = isset($data['annee_fondation']) ? $data['annee_fondation'] : null ;
-                $compagnie->site_internet = isset($data['site_internet']) ? $data['site_internet'] : null ;
-                
-                $compagnie->created_by = $request->user();
-                $compagnie->save();
-
-                //Ajout des villes dans lesquelles se trouvent cette compagnie
-                $villes = array_map('intval', explode(',', $data['villes']));
-                $compagnie->villes()->attach($villes);
-                
-               //Création du compte du responsable de la compagnie 
                 $password = Str::random(10);
-                $user = User::create([
-                    'name' => $data['name'],
-                    'email' => $data['emailResponsable'],
-                    'contact' => $data['contactResponsable'], 
-                    'role' => 'admin-compagnie',
-                    'compagnie_id' => $compagnie->id,
-                    'password' => bcrypt($password),
-                    'confirmation_token' => str_replace('/', '', bcrypt(Str::random(16))),
-                ]);
+                $user->password = bcrypt($password);
+
+                $user->created_by = $request->user();
+                $user->save();
                 
                 //Envoie de mail pour notifier la création du compte
                 $subject = 'CREATION DE VOTRE COMPTE UTILISATEUR';
                 $body = "Bonjour, '.$user->name.' <br/>Votre compte utilisateur du site v-ticket vient d'être crée.<br/> Votre nom d'utilisateur : <strong>".$user->email."</strong><br/> Votre mot de passe : '.$password.'<br/> Veuillez vous connecter pour réinitialiser votre mot de passe. <br/> Merci !";
                 Mail::to($user->email)->send((new SimpleMessage($subject, $body))->onQueue('notifications'));
 
-                $jsonData["data"] = json_decode($compagnie);
+                $jsonData["data"] = json_decode($user);
             
                 //En cas de succes
                 DB::commit();
@@ -115,49 +96,32 @@ class CompagnieController extends Controller
     public function update(Request $request,  $id)
     {
         $jsonData = ["code" => 1, "msg" => "Modification effectuée avec succès."];
-        $compagnie = Compagnie::find($id);
+        $user = User::find($id);
 
-        if($compagnie){
+        if($user){
             $data = $request->all(); 
 
             try {
 
                 $request->validate([
-                    'raison_sociale' => 'required',
+                    'name' => 'required',
                     'contact' => 'required',
                     'email' => 'required',
-                    'adresse' => 'required',
-                    'country_id' => 'required',
+                    'role' => 'required',
                 ]);
 
                 //Debut de transaction
                 DB::beginTransaction();
 
-                $compagnie->update([
-                    'raison_sociale' => $data['raison_sociale'],
+                $user->update([
+                    'name' =>  $data['name'],
                     'contact' => $data['contact'],
                     'email' => $data['email'],
-                    'adresse' => $data['adresse'],
-                    'country_id' => $data['country_id'],
-                    'contact_fixe' => isset($data['contact_fixe']) ? $data['contact_fixe'] : null,
-                    'annee_fondation' => isset($data['annee_fondation']) ? $data['annee_fondation'] : null,
-                    'site_internet' => isset($data['site_internet']) ? $data['site_internet'] : null,
+                    'role' => $data['role'],
                     'updated_by' => $request->user(),
                 ]);
 
-                //Modification des villes dans lesquelles se trouvent cette compagnie
-                $villes = array_map('intval', explode(',', $data['villes']));
-                $compagnie->villes()->sync($villes);
-
-                //Modification du compte du responsable de la compagnie 
-                $user = User::where([['compagnie_id',$compagnie->id],['role','admin-compagnie']])->first();
                 $oldEmail = $user->email;
-
-                $user->update([
-                    'name' => $data['name'],
-                    'email' => $data['emailResponsable'],
-                    'contact' => $data['contactResponsable'], 
-                ]);
                 
                 //Envoie de mail pour notifier la modification du compte si l'email change
                 if($user->email != $oldEmail){
@@ -166,7 +130,7 @@ class CompagnieController extends Controller
                     Mail::to($user->email)->send((new SimpleMessage($subject, $body))->onQueue('notifications'));
                 }
                
-                $jsonData["data"] = json_decode($compagnie);
+                $jsonData["data"] = json_decode($user);
 
                 //En cas de succes
                 DB::commit();
@@ -191,17 +155,15 @@ class CompagnieController extends Controller
     public function destroy($id)
     {
         $jsonData = ["code" => 1, "msg" => " Opération effectuée avec succès."];
-            $compagnie = Compagnie::find($id);
+            $user = User::find($id);
             
-            if($compagnie){
+            if($user){
                 try {
-                    //Supression des villes dans lesquelles se trouvent cette compagnie
-                    $compagnie->villes()->detach();
-
-                    $compagnie->deleted_by = auth()->user();
                     
-                    $compagnie->delete();
-                    $jsonData["data"] = json_decode($compagnie);
+                    $user->deleted_by = auth()->user();
+                    
+                    $user->delete();
+                    $jsonData["data"] = json_decode($user);
                     return response()->json($jsonData);
 
                 } catch (Exception $exc) {

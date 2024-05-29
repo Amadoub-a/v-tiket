@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\BaseModele;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Depart extends BaseModele
@@ -14,28 +15,59 @@ class Depart extends BaseModele
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'vehicule_id',
-        'chauffeur_id',
-        'ville_depart_id',
-        'ville_arrivee_id',
-        'passager_id',
-        'created_by',
-        'updated_by',
-        'deleted_by',
-    ];
+    public function getFillable()
+    {
+        return [
+            'vehicule_id',
+            'chauffeur_id',
+            'ville_depart_id',
+            'ville_arrivee_id',
+            'place_occupee',
+        ];
+    }
 
      /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function getCasts()
     {
         return [
             'date_depart' => 'datetime',
             'date_arrivee'=> 'datetime',
-            'deleted_at'=> 'datetime',
         ];
+    }
+
+     /**
+     * The vehicule that belong to the depart.
+     */
+    public function vehicule(): BelongsTo
+    {
+        return $this->belongsTo(Vehicule::class);
+    }
+
+    /**
+     * The chauffeur that belong to the depart.
+     */
+    public function chauffeur(): BelongsTo
+    {
+        return $this->belongsTo(Chauffeur::class);
+    }
+
+    /**
+     * The ville_depart that belong to the depart.
+     */
+    public function ville_depart(): BelongsTo
+    {
+        return $this->belongsTo(Ville::class);
+    }
+
+    /**
+     * The ville_arrivee that belong to the depart.
+     */
+    public function ville_arrivee(): BelongsTo
+    {
+        return $this->belongsTo(Ville::class);
     }
 }

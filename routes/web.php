@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\ChauffeurController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DepartController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VehiculeController;
+use App\Http\Controllers\ChauffeurController;
 use App\Http\Controllers\Parametre\GenreController;
 use App\Http\Controllers\Parametre\VilleController;
 use App\Http\Controllers\Parametre\MarqueController;
 use App\Http\Controllers\Parametre\ModeleController;
 use App\Http\Controllers\Parametre\CountryController;
 use App\Http\Controllers\Parametre\CompagnieController;
-use App\Http\Controllers\VehiculeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,7 +27,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('chauffeurs', ChauffeurController::class);
     Route::resource('vehicules', VehiculeController::class);
-});
+    Route::resource('departs', DepartController::class);
+}); 
 
 Route::middleware('auth')->name('parametre.')->prefix('parametre')->group(function (){
     //Route ressources
